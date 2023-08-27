@@ -1,15 +1,16 @@
 [package]
 name = "screenshot"
 version = "0.1.0"
+description = "A demo that saves screenshots of windows or monitors using Windows.Graphics.Capture and windows-rs."
 authors = ["robmikh <rob.mikh@outlook.com>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
-clap = "2.33.3"
 raw-window-handle = "*"
+clap = { version = "4.3.11", features = ["derive"] }
 
 [dependencies.windows]
-version = "0.25.0"
+version = "0.48.0"
 features = [
     "Foundation",
     "Win32_Foundation",
@@ -18,8 +19,12 @@ features = [
     "Win32_Graphics_Dwm",
     "Win32_Graphics_Gdi",
     "Win32_Graphics_Dxgi",
+    "Win32_Graphics_Dxgi_Common",
+    "Win32_Graphics_Direct3D",
     "Win32_Graphics_Direct3D11",
     "Win32_System_WinRT",
+    "Win32_System_WinRT_Direct3D11",
+    "Win32_System_WinRT_Graphics_Capture",
     "UI",
     "Storage",
     "Storage_Streams",

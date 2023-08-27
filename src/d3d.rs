@@ -1,14 +1,14 @@
-use windows::runtime::{Abi, Interface, Result};
+use windows::core::{ComInterface, Interface, Result};
 use windows::Graphics::DirectX::Direct3D11::IDirect3DDevice;
 use windows::Win32::Graphics::{
+    Direct3D::{D3D_DRIVER_TYPE, D3D_DRIVER_TYPE_HARDWARE, D3D_DRIVER_TYPE_WARP},
     Direct3D11::{
         D3D11CreateDevice, ID3D11Device, D3D11_CREATE_DEVICE_BGRA_SUPPORT,
-        D3D11_CREATE_DEVICE_FLAG, D3D11_SDK_VERSION, D3D_DRIVER_TYPE, D3D_DRIVER_TYPE_HARDWARE,
-        D3D_DRIVER_TYPE_WARP,
+        D3D11_CREATE_DEVICE_FLAG, D3D11_SDK_VERSION,
     },
     Dxgi::{IDXGIDevice, DXGI_ERROR_UNSUPPORTED},
 };
-use windows::Win32::System::WinRT::{
+use windows::Win32::System::WinRT::Direct3D11::{
     CreateDirect3D11DeviceFromDXGIDevice, IDirect3DDxgiInterfaceAccess,
 };
 
@@ -23,12 +23,11 @@ fn create_d3d_device_with_type(
             driver_type,
             None,
             flags,
-            std::ptr::null(),
-            0,
+            None,
             D3D11_SDK_VERSION as u32,
-            device,
-            std::ptr::null_mut(),
-            std::ptr::null_mut(),
+            Some(device),
+            None,
+            None,
         )
     }
 }
@@ -55,11 +54,13 @@ pub fn create_d3d_device() -> Result<ID3D11Device> {
 
 pub fn create_direct3d_device(d3d_device: &ID3D11Device) -> Result<IDirect3DDevice> {
     let dxgi_device: IDXGIDevice = d3d_device.cast()?;
-    let inspectable = unsafe { CreateDirect3D11DeviceFromDXGIDevice(Some(dxgi_device))? };
+    let inspectable = unsafe { CreateDirect3D11DeviceFromDXGIDevice(&dxgi_device)? };
     inspectable.cast()
 }
 
-pub fn get_d3d_interface_from_object<S: Interface, R: Interface + Abi>(object: &S) -> Result<R> {
+pub fn get_d3d_interface_from_object<S: Interface + ComInterface, R: Interface + ComInterface>(
+    object: &S,
+) -> Result<R> {
     let access: IDirect3DDxgiInterfaceAccess = object.cast()?;
     let object = unsafe { access.GetInterface::<R>()? };
     Ok(object)
